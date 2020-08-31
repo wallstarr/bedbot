@@ -3,14 +3,10 @@ from discord.ext import commands
 
 client = commands.Bot(command_prefix = '!')
 
-@client.event
-async def on_ready():
-    print("Bot is ready.")
+cogs = ['cogs.BedWarsCommands', 'cogs.MiscEventsAndCommands']
 
-@client.command()
-async def bedbot(ctx):
-    await ctx.send(f'ur stats are bad. \nlatency: {round(client.latency * 1000)}ms')
-    print("Bruh")
-
-
-client.run("token here")
+if __name__ == '__main__':
+    for cog in cogs:
+        client.load_extension(cog)
+    
+client.run("NzQ5NTg1OTk5NTM3MTExMDUy.X0uIXA.sEmEj1x3zBfYBa87NVUAA9Pvh0o")
