@@ -1,5 +1,7 @@
+import os
 import discord
 from discord.ext import commands
+from dotenv import load_dotenv
 
 client = commands.Bot(command_prefix = '!')
 
@@ -9,4 +11,4 @@ if __name__ == '__main__':
     for cog in cogs:
         client.load_extension(cog)
     
-client.run("TOKEN_HERE")
+client.run(os.getenv('TOKEN'))
