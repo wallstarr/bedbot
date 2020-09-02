@@ -46,3 +46,9 @@ def generateLink(username: str):
 
 def scrapeData(userlink: str, gamemode: int):
   print("Placeholder")
+
+
+print(getBedStats('samuraigorila10', 4))
+
+
+
