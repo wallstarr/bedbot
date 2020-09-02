@@ -3,52 +3,84 @@ import urllib.request
 import time
 from bs4 import BeautifulSoup
 
-SOLOS_INDEX = 0 
-DOUBLES_INDEX = 1
-THREES_INDEX = 2
-FOURS_INDEX = 3
+NORMAL_KILLS_INDEX = 0
+NORMAL_DEATHS_INDEX = 1
+NORMAL_KD_RATIO_INDEX = 2
+FINAL_KILLS_INDEX = 3
+FINAL_DEATHS_INDEX = 4
+FINAL_KD_RATIO_INDEX = 5
+WINS_INDEX = 6
+LOSSES_INDEX = 7
+WIN_LOSS_RATIO_INDEX = 8
+BEDS_BROKEN_INDEX = 9
 
 def getBedStats(username: str, gamemode: int):
   if (gamemode == -1):
     return "Ur trolling, nice try buddy. Invalid Input: 1's, 2's, 3's, & 4's are the only supported gamemodes."
 
-  userLink = generateLink(username)
+  userlink = generateLink(username)
+  gamestats = scrapeData(userlink, gamemode)
 
-  # Connect to the URL
-  dater = requests.get(userLink)
-
-  # Parse HTML and save to BeautifulSoup object
-  soup = BeautifulSoup(dater.text, "html.parser")
-
-  # Select all tr (table row) elements in the bedwars table and append them to trs
-  bedwars_div = soup.find(id="stat_panel_BedWars")
-  stat_table = bedwars_div.find("table", class_="table")
-  stat_tr = stat_table.select("tr")
-
-  # Loops through all the tr's that have actual stats in them
-  stats = []
-  allstats = []
-  for tr in stat_tr:
-    if (len(tr.select("td")) == 10): # 10 is the number of stats for each gamemode
-      stats.append(tr)
-      #for td in tr.select("td"):
-        #print(td.text)
-
-  for td in stats[gamemode - 1]:
-    allstats.append(td.text)
-
-        
-  return f'Beds Broken {allstats[10]}'
+  if (gamestats):
+    return createStatMessage(username, gamemode, gamestats)
+  return "Invalid username, try again"  
 
 def generateLink(username: str):
   userLink = 'https://plancke.io/hypixel/player/stats/' + username + '#Bedwars'
   return userLink
 
 def scrapeData(userlink: str, gamemode: int):
-  print("Placeholder")
+  # Connect to the URL
+  dater = requests.get(userlink)
+
+  # Parse HTML and save to BeautifulSoup object
+  soup = BeautifulSoup(dater.text, "html.parser")
+
+  # If invalid username, return empty array
+  if (soup.find_all("b", text="Player does not exist!")):
+    return []
+
+  # Select all tr (table row) elements in the bedwars table and append them to trs
+  bedwars_div = soup.find(id="stat_panel_BedWars")
+  stat_table = bedwars_div.find("table", class_="table")
+  trs = stat_table.select("tr")
+
+  # Loops through all the tr's that have actual stats in them
+  stat_trs = []
+  for tr in trs:
+    if (len(tr.select("td")) == 10): # 10 is the number of stats for each gamemode
+      stat_trs.append(tr)          
+
+  tds = stat_trs[gamemode - 1].find_all("td")
+  game_stats = []
+  for td in tds:
+    game_stats.append(td.text)
+
+  return game_stats 
 
 
-print(getBedStats('samuraigorila10', 4))
+def createStatMessage(username: str, gamemode: int, gamestats: []):
+  gs = gamestats
+  gametype_string: str
+  if (gamemode == 1):
+    gametype_string = "Solo"
+  elif (gamemode == 2):
+    gametype_string = "Doubles"
+  elif (gamemode == 3):
+    gametype_string = "Threes"
+  else:
+    gametype_string = "Fours"
 
-
-
+  beds_per_game = round(((int(gs[BEDS_BROKEN_INDEX]) / (int(gs[WINS_INDEX]) + int(gs[LOSSES_INDEX]))) * 1000)) / 1000
+  
+  first_line = "```prolog\n"
+  second_line = f"BedWars Stats: {username} - {gametype_string}\n"
+  third_line = "---------------------------------------\n"
+  fourth_line = f"Total Normal Kills/Deaths: {gs[NORMAL_KILLS_INDEX]} - {gs[NORMAL_DEATHS_INDEX]}, {gs[NORMAL_KD_RATIO_INDEX]}KD\n"
+  fifth_line = f"Total Final Kills/Deaths: {gs[FINAL_KILLS_INDEX]} - {gs[FINAL_DEATHS_INDEX]}, {gs[FINAL_KD_RATIO_INDEX]}KD\n"
+  sixth_line = f"Beds Broken: {gs[BEDS_BROKEN_INDEX]} Broken, {beds_per_game} per game\n"
+  seventh_line = f"Wins & Losses: {gs[WINS_INDEX]}Ws, {gs[LOSSES_INDEX]}Ls - {gs[WIN_LOSS_RATIO_INDEX]}W/L\n"
+  eighth_line = "```"
+  
+  message = first_line + second_line + third_line + fourth_line + fifth_line + sixth_line + seventh_line + eighth_line
+  return message
