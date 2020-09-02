@@ -3,6 +3,7 @@ import urllib.request
 import time
 from bs4 import BeautifulSoup
 
+# INDEXES OF STATISTICS
 NORMAL_KILLS_INDEX = 0
 NORMAL_DEATHS_INDEX = 1
 NORMAL_KD_RATIO_INDEX = 2
@@ -14,22 +15,28 @@ LOSSES_INDEX = 7
 WIN_LOSS_RATIO_INDEX = 8
 BEDS_BROKEN_INDEX = 9
 
+# Returns a message containing the statistics for the user.
 def getBedStats(username: str, gamemode: int):
   if (gamemode == -1):
-    return "Ur trolling, nice try buddy. Invalid Input: 1's, 2's, 3's, & 4's are the only supported gamemodes."
+    return "`Ur trolling, nice try buddy. Invalid Input: 1's, 2's, 3's, & 4's are the only supported gamemodes.`"
 
-  userlink = generateLink(username)
-  gamestats = scrapeData(userlink, gamemode)
+  userlink = __generateLink(username)
+  gamestats = __scrapeData(userlink, gamemode)
 
   if (gamestats):
-    return createStatMessage(username, gamemode, gamestats)
-  return "Invalid username, try again"  
+    return __createStatMessage(username, gamemode, gamestats)
+  return "`Invalid username, try again`"  
 
-def generateLink(username: str):
+### HELPER FUNCTIONS to getBedStats() ↓  ↓  ↓ 
+
+# Returns a string that is the BedWars stat website URL for 'username'
+def __generateLink(username: str):
   userLink = 'https://plancke.io/hypixel/player/stats/' + username + '#Bedwars'
   return userLink
 
-def scrapeData(userlink: str, gamemode: int):
+# - Scrapes data for user statistics.
+# - Then, returns an array of numbers which use the indexes listed from line 6 of this file
+def __scrapeData(userlink: str, gamemode: int):
   # Connect to the URL
   dater = requests.get(userlink)
 
@@ -58,8 +65,9 @@ def scrapeData(userlink: str, gamemode: int):
 
   return game_stats 
 
-
-def createStatMessage(username: str, gamemode: int, gamestats: []):
+# Returns a message containing player statistics for the Discord bot 
+# to send to the chat. Utilizes the prolog formatting style (purely for style). 
+def __createStatMessage(username: str, gamemode: int, gamestats: []):
   gs = gamestats
   gametype_string: str
   if (gamemode == 1):
@@ -78,7 +86,7 @@ def createStatMessage(username: str, gamemode: int, gamestats: []):
   third_line = "---------------------------------------\n"
   fourth_line = f"Total Normal Kills/Deaths: {gs[NORMAL_KILLS_INDEX]} - {gs[NORMAL_DEATHS_INDEX]}, {gs[NORMAL_KD_RATIO_INDEX]}KD\n"
   fifth_line = f"Total Final Kills/Deaths: {gs[FINAL_KILLS_INDEX]} - {gs[FINAL_DEATHS_INDEX]}, {gs[FINAL_KD_RATIO_INDEX]}KD\n"
-  sixth_line = f"Beds Broken: {gs[BEDS_BROKEN_INDEX]} Broken, {beds_per_game} per game\n"
+  sixth_line = f"Beds Broken: {gs[BEDS_BROKEN_INDEX]} Total, {beds_per_game} per game\n"
   seventh_line = f"Wins & Losses: {gs[WINS_INDEX]}Ws, {gs[LOSSES_INDEX]}Ls - {gs[WIN_LOSS_RATIO_INDEX]}W/L\n"
   eighth_line = "```"
   
