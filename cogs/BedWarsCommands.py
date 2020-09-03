@@ -12,7 +12,14 @@ class BedWarsCommands(commands.Cog):
     @commands.command()
     async def bedwars(self, cxt, gamemode, username):
         await cxt.send(scraper.getBedStats(username, convertGamemodeStringToInt(gamemode)))
-        print("Bedwars command received")
+        print("Bedwars command received") 
+
+    @bedwars.error
+    async def bedwars_error(self, cxt, error):
+        if isinstance(error, commands.MissingRequiredArgument):
+            await cxt.send("```css\nException: MissingRequiredArgument\nHow to use: !bedwars <gamemode> <username>\n```")
+
+
 
 def setup(bot):
     bot.add_cog(BedWarsCommands(bot))
