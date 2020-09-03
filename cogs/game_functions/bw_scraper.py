@@ -80,7 +80,8 @@ def __createStatMessage(username: str, gamemode: int, gamestats: []):
     gametype_string = "Fours"
 
   # If user has never played this gamemode, return a message indicating so
-  if (gs[WINS_INDEX] + gs[LOSSES_INDEX == 0]):
+  no_games: bool = int(gs[WINS_INDEX]) + int(gs[LOSSES_INDEX]) == 0
+  if (no_games):
     return f"`You've never played {gametype_string.lower()} before, {username} -- go play some! (noob)`"
   
   beds_per_game = round(((int(gs[BEDS_BROKEN_INDEX]) / (int(gs[WINS_INDEX]) + int(gs[LOSSES_INDEX]))) * 1000)) / 1000
