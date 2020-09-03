@@ -80,14 +80,14 @@ def __createStatMessage(username: str, gamemode: int, gamestats: []):
     gametype_string = "Fours"
 
   # If user has never played this gamemode, return a message indicating so
-  no_games: bool = int(gs[WINS_INDEX]) + int(gs[LOSSES_INDEX]) == 0
+  no_games: bool = int(gs[WINS_INDEX].replace(',', '')) + int(gs[LOSSES_INDEX].replace(',', '')) == 0
   if (no_games):
     return f"`You've never played {gametype_string.lower()} before, {username} -- go play some! (noob)`"
   
-  beds_per_game = round(((int(gs[BEDS_BROKEN_INDEX]) / (int(gs[WINS_INDEX]) + int(gs[LOSSES_INDEX]))) * 1000)) / 1000
+  beds_per_game = round(((int(gs[BEDS_BROKEN_INDEX].replace(',', '')) / (int(gs[WINS_INDEX].replace(',', '')) + int(gs[LOSSES_INDEX].replace(',', '')))) * 1000)) / 1000
   
   first_line = "```prolog\n"
-  second_line = f"BedWars Stats: {username} - {gametype_string}\n"
+  second_line = f"BedWars Stats: {username.lower()} - {gametype_string}\n"
   third_line = "---------------------------------------\n"
   fourth_line = f"Total Normal Kills/Deaths: {gs[NORMAL_KILLS_INDEX]} - {gs[NORMAL_DEATHS_INDEX]}, {gs[NORMAL_KD_RATIO_INDEX]}KD\n"
   fifth_line = f"Total Final Kills/Deaths: {gs[FINAL_KILLS_INDEX]} - {gs[FINAL_DEATHS_INDEX]}, {gs[FINAL_KD_RATIO_INDEX]}KD\n"
